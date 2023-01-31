@@ -1,8 +1,12 @@
 use rusty_engine::prelude::*;
 
-const PLAYER_SPEED: f32 = 250.0; // pixel per seconds
 const WINDOW_WIDTH: f32 = 800.0;
 const WINDOW_HEIGHT: f32 = 300.0;
+
+const PLAYER_SPEED: f32 = 250.0; // pixel per seconds
+
+const ROAD_SPEED: f32 = 400.0;
+const ROAD_SPACING: f32 = 100.0;
 
 struct GameState {
     health_amount: u8,
@@ -25,6 +29,13 @@ fn main() {
     player1.translation.x = -(WINDOW_WIDTH / 2.0 - 100.0);
     player1.layer = 10.0;
     player1.collision = true;
+
+    // Create the road lines
+    for i in 0..10 {
+        let roadline = game.add_sprite(format!("roadline{}", i), SpritePreset::RacingBarrierWhite);
+        roadline.scale = 0.1;
+        roadline.translation.x = -(WINDOW_WIDTH / 2.0 - 40.0) + ROAD_SPACING * i as f32;
+    }
 
     // start some background music
     game.audio_manager.play_music(MusicPreset::WhimsicalPopsicle, 0.2);
@@ -53,5 +64,15 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     player1.rotation = direction * 0.15;
     if player1.translation.y < -(WINDOW_HEIGHT / 2.0) || player1.translation.y > WINDOW_HEIGHT / 2.0 {
         game_state.health_amount = 0;
+    }
+
+    // Move road objects
+    for sprite in engine.sprites.values_mut() {
+        if sprite.label.starts_with("roadline") {
+            sprite.translation.x -= ROAD_SPEED * engine.delta_f32;
+            if sprite.translation.x < -(WINDOW_WIDTH / 2.0) {
+                sprite.translation.x += ROAD_SPACING * 10.0;
+            }
+        }
     }
 }
