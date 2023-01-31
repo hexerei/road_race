@@ -1,4 +1,5 @@
 use rusty_engine::prelude::*;
+use rand::prelude::*;
 
 const WINDOW_WIDTH: f32 = 800.0;
 const WINDOW_HEIGHT: f32 = 300.0;
@@ -39,6 +40,20 @@ fn main() {
         roadline.translation.x = -(CENTER_X - 40.0) + ROAD_SPACING * i as f32;
     }
 
+    // Create the obstacles
+    let obstacle_presets = vec![
+        SpritePreset::RacingBarrelBlue,
+        SpritePreset::RacingBarrelRed,
+        SpritePreset::RacingConeStraight
+    ];
+    for (i, preset) in obstacle_presets.into_iter().enumerate() {
+        let obstacle = game.add_sprite(format!("obstacle{}", i), preset);
+        obstacle.layer = 5.0;
+        obstacle.collision = true;
+        obstacle.translation.x = thread_rng().gen_range(CENTER_X..(WINDOW_WIDTH + 280.0));
+        obstacle.translation.y = thread_rng().gen_range(-(CENTER_Y - 20.0)..(CENTER_Y - 20.0));
+    }
+
     // start some background music
     game.audio_manager.play_music(MusicPreset::WhimsicalPopsicle, 0.2);
 
@@ -76,5 +91,11 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
                 sprite.translation.x += ROAD_SPACING * 10.0;
             }
         }
-    }
+        if sprite.label.starts_with("obstacle") {
+            sprite.translation.x -= ROAD_SPEED * engine.delta_f32;
+            if sprite.translation.x < -CENTER_X {
+                sprite.translation.x = thread_rng().gen_range(CENTER_X..(WINDOW_WIDTH + 280.0));
+                sprite.translation.y = thread_rng().gen_range(-(CENTER_Y - 20.0)..(CENTER_Y - 20.0));
+            }
+        }    }
 }
