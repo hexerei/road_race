@@ -2,6 +2,8 @@ use rusty_engine::prelude::*;
 
 const WINDOW_WIDTH: f32 = 800.0;
 const WINDOW_HEIGHT: f32 = 300.0;
+const CENTER_X: f32 = WINDOW_WIDTH / 2.0;
+const CENTER_Y: f32 = WINDOW_HEIGHT / 2.0;
 
 const PLAYER_SPEED: f32 = 250.0; // pixel per seconds
 
@@ -26,7 +28,7 @@ fn main() {
 
     // create player sprite
     let player1 = game.add_sprite("player1", SpritePreset::RacingCarBlue);
-    player1.translation.x = -(WINDOW_WIDTH / 2.0 - 100.0);
+    player1.translation.x = -(CENTER_X - 100.0);
     player1.layer = 10.0;
     player1.collision = true;
 
@@ -34,7 +36,7 @@ fn main() {
     for i in 0..10 {
         let roadline = game.add_sprite(format!("roadline{}", i), SpritePreset::RacingBarrierWhite);
         roadline.scale = 0.1;
-        roadline.translation.x = -(WINDOW_WIDTH / 2.0 - 40.0) + ROAD_SPACING * i as f32;
+        roadline.translation.x = -(CENTER_X - 40.0) + ROAD_SPACING * i as f32;
     }
 
     // start some background music
@@ -62,7 +64,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     let player1 = engine.sprites.get_mut("player1").unwrap();
     player1.translation.y += direction * PLAYER_SPEED * engine.delta_f32;
     player1.rotation = direction * 0.15;
-    if player1.translation.y < -(WINDOW_HEIGHT / 2.0) || player1.translation.y > WINDOW_HEIGHT / 2.0 {
+    if player1.translation.y < -CENTER_Y || player1.translation.y > CENTER_Y {
         game_state.health_amount = 0;
     }
 
@@ -70,7 +72,7 @@ fn game_logic(engine: &mut Engine, game_state: &mut GameState) {
     for sprite in engine.sprites.values_mut() {
         if sprite.label.starts_with("roadline") {
             sprite.translation.x -= ROAD_SPEED * engine.delta_f32;
-            if sprite.translation.x < -(WINDOW_WIDTH / 2.0) {
+            if sprite.translation.x < -CENTER_X {
                 sprite.translation.x += ROAD_SPACING * 10.0;
             }
         }
